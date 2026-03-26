@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <title>DLP - Material Giriş Modulu</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+    <style>
+        body { background-color: #fcfcfc; padding: 40px; font-family: 'Segoe UI', sans-serif; }
+        .form-card { background: white; padding: 30px; border-radius: 12px; border: 1px solid #eee; box-shadow: 0 4px 12px rgba(0,0,0,0.03); max-width: 1400px; margin: auto; }
+        .form-label { font-size: 0.85rem; font-weight: 700; color: #444; margin-bottom: 8px; }
+        .select2-container--bootstrap-5 .select2-selection { min-height: 40px !important; border-radius: 6px !important; }
+        .field-wrapper { position: relative; padding-bottom: 22px; }
+        .invalid-feedback { position: absolute; bottom: 2px; left: 0; font-size: 0.72rem; display: none; color: #dc3545; font-weight: 500; }
+        .is-invalid-s2 + .select2-container--bootstrap-5 .select2-selection { border-color: #dc3545 !important; }
+        .btn-add-round { width: 40px; height: 40px; border-radius: 50%; border: 1.5px solid #3b71ca; color: #3b71ca; background: white; font-size: 1.2rem; cursor: pointer; transition: 0.2s; margin-bottom: 22px; }
+        .btn-add-round:hover { background: #3b71ca; color: white; }
+        .table-container { margin-top: 10px; border-radius: 8px; border: 1px solid #eee; overflow: hidden; }
+        .footer-total { background-color: #f0f5ff; padding: 15px 40px; text-align: right; font-weight: 700; border-top: 2px solid #3b71ca; }
+        .btn-confirm { background-color: #3b71ca; color: white; padding: 12px 40px; border-radius: 8px; border: none; font-weight: 600; transition: 0.3s; margin-top: 20px; float: right; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div class="form-card">
+    <h5 class="mb-4" style="font-weight:700;">Material məlumatları</h5>
+    
+    <div id="duplicateAlert" class="alert alert-warning py-2" style="display:none;">⚠️ Bu material artıq siyahıya əlavə edilib!</div>
+    <div id="emptyAlert" class="alert alert-danger py-2" style="display:none;">❌ Ən azı bir material əlavə edilməlidir</div>
+    <div id="limitAlert" class="alert alert-danger py-2" style="display:none;">⚠️ Maksimum 10 sətir əlavə edə bilərsiniz!</div>
+
+    <div class="row g-2 align-items-start">
+        <div class="col-md-4">
+            <div class="field-wrapper">
+                <label class="form-label">Materialın təsnifatı</label>
+                <select id="tasnifat" class="form-select select2-search">
+                    <option value="">Seçim edin</option>
+                    <option value="1" data-vahid="ton" data-price="0.90">1. dənli və paxlalı bitkilərin məhsulları</option>
+                    <option value="2" data-vahid="ton" data-price="0.85">2. texniki bitkilərin məhsulları</option>
+                    <option value="3" data-vahid="ton" data-price="0.75">3. tərəvəz, bostan bitkiləri, kartof</option>
+                    <option value="4" data-vahid="ton" data-price="0.95">4. meyvə, giləmeyvə, üzüm məhsulları</option>
+                    <option value="5" data-vahid="ton" data-price="1.10">5. qurudulmuş meyvələr (qoz, fındıq, badam)</option>
+                    <option value="6" data-vahid="ədəd" data-price="0.50">6. canlı bitkilər, güllər, çiçəklər</option>
+                    <option value="7" data-vahid="ton" data-price="0.90">7. texniki yüklər və digər materiallar</option>
+                    <option value="8" data-vahid="ton" data-price="1.20">8. toxum və əkin materialları</option>
+                    <option value="9" data-vahid="ədəd" data-price="0.80">9. Bitki mənşəli kolleksiya materialları</option>
+                    <option value="10" data-vahid="ton" data-price="0.90">10. Bitki və bitkiçilik məhsullarının nümunələri</option>
+                    <option value="11" data-vahid="ton" data-price="0.60">11. Torpaq nümunələri</option>
+                    <option value="12" data-vahid="m3" data-price="1.10">12. Meşə materialları</option>
+                    <option value="13" data-vahid="m3" data-price="1.30">13. Taxta-şalban məmulatları</option>
+                </select>
+                <div id="tasnifatErr" class="invalid-feedback">Bu xana boş qala bilməz</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="field-wrapper">
+                <label class="form-label">Materialın adı</label>
+                <select id="ad" class="form-select select2-search"><option value="">Seçim edin</option></select>
+                <div id="adErr" class="invalid-feedback">Bu xana boş qala bilməz</div>
+            </div>
+        </div>
+        <div class="col-md-1"><div class="field-wrapper"><label class="form-label">Vahid</label><input type="text" id="vahid" class="form-control" readonly tabindex="-1"></div></div>
+        <div class="col-md-2">
+            <div class="field-wrapper">
+                <label class="form-label">Miqdar</label>
+                <input type="number" id="miqdar" class="form-control" placeholder="0.00" step="0.01">
+                <div id="miqdarErr" class="invalid-feedback">Bu xana boş qala bilməz</div>
+            </div>
+        </div>
+        <div class="col-md-1"><div class="field-wrapper"><label class="form-label">Xidmət haqqı</label><input type="text" id="haqq" class="form-control fw-bold" value="0.00" readonly tabindex="-1"></div></div>
+        <div class="col-md-1 d-flex justify-content-center">
+            <button type="button" class="btn-add-round" onclick="addRow()">+</button>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <table class="table mb-0 align-middle">
+            <thead>
+                <tr>
+                    <th width="35%">Təsnifat</th><th width="25%">Ad</th><th width="10%">Vahid</th>
+                    <th width="10%">Miqdar</th><th width="10%">Xidmət haqqı</th><th width="10%" class="text-center">İdarə</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody"></tbody>
+        </table>
+        <div class="footer-total" id="footerTotal">Cəmi: 0.00 AZN</div>
+    </div>
+
+    <button type="button" class="btn-confirm" onclick="confirmData()">Təsdiqlə</button>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    const materialMap = {
+        "1": ["Buğda", "Arpa", "Qarğıdalı", "Vələmir"],
+        "2": ["Pambıq", "Günəbaxan", "Tütün"],
+        "3": ["Kartof", "Soğan", "Sarımsaq", "Kələm", "Xiyar", "Pomidor"],
+        "4": ["Alma", "Armud", "Heyva", "Nar", "Üzüm", "Gilas"],
+        "5": ["Qoz", "Fındıq", "Badam", "Şabalıd"],
+        "6": ["Canlı güllər", "Tinglər", "Dibçək bitkiləri"],
+        "7": ["Saman", "Yemlik otlar", "Yun"],
+        "8": ["Toxumluq buğda", "Toxumluq arpa", "Əkin materialı"],
+        "9": ["Herbari nümunələri", "Kolleksiya bitkiləri"],
+        "10": ["Laboratoriya nümunəsi", "Analiz materialı"],
+        "11": ["Torpaq", "Gübrəli torpaq"],
+        "12": ["Odun", "Şam", "Küknar", "Palıd"],
+        "13": ["Taxta", "Şalban", "Laminat", "DSP"]
+    };
+    
+    let internal = false;
+
+    function clearValidation(id) {
+        $(id).removeClass('is-invalid is-invalid-s2');
+        $(id).closest('.field-wrapper').find('.invalid-feedback').hide();
+    }
+
+    $(document).ready(function() {
+        $('.select2-search').select2({ theme: 'bootstrap-5', placeholder: 'Seçim edin' });
+        loadAds();
+
+        $('#miqdar').on('input', function() {
+            if (parseFloat($(this).val()) > 0) clearValidation('#miqdar');
+            calculate();
+        });
+
+        $('#tasnifat').on('change', function() {
+            if ($(this).val()) clearValidation('#tasnifat');
+            if (internal) return;
+
+            const t = $(this).val();
+            const currentAd = $('#ad').val();
+
+            $('#vahid').val($(this).find(':selected').data('vahid') || "");
+            
+            let opt = '<option value="">Seçim edin</option>';
+            if(t && materialMap[t]) materialMap[t].forEach(i => opt += `<option value="${i}">${i}</option>`);
+            opt += '<option value="Digər">Digər</option>';
+            
+            $('#ad').html(opt);
+
+            if (currentAd === "Digər") {
+                $('#ad').val("Digər").trigger('change.select2');
+            } else {
+                $('#ad').val(null).trigger('change.select2');
+            }
+
+            calculate();
+        });
+
+        $('#ad').on('select2:select', function(e) {
+            clearValidation('#ad');
+            if (internal) return;
+            const val = e.params.data.id;
+            if (val && val !== "Digər") {
+                for (let tid in materialMap) {
+                    if (materialMap[tid].includes(val)) {
+                        internal = true;
+                        $('#tasnifat').val(tid).trigger('change');
+                        clearValidation('#tasnifat');
+                        $('#vahid').val($('#tasnifat option:selected').data('vahid'));
+                        internal = false;
+                        break;
+                    }
+                }
+            }
+            calculate();
+        });
+    });
+
+    function loadAds() {
+        let opt = '<option value="">Seçim edin</option>';
+        for(let k in materialMap) materialMap[k].forEach(i => opt += `<option value="${i}">${i}</option>`);
+        opt += '<option value="Digər">Digər</option>';
+        $('#ad').html(opt);
+    }
+
+    function calculate() {
+        const m = parseFloat($('#miqdar').val()) || 0;
+        const p = parseFloat($('#tasnifat option:selected').data('price')) || 0;
+        $('#haqq').val(m > 0 ? (m * p).toFixed(2) : "0.00");
+    }
+
+    function addRow() {
+        const t = $('#tasnifat'), a = $('#ad'), m = $('#miqdar');
+        const rowCount = $('#tableBody tr').length;
+        let isValid = true;
+
+        if (rowCount >= 10) {
+            $('#limitAlert').fadeIn().delay(3000).fadeOut();
+            return;
+        }
+
+        if(!t.val()) { t.addClass('is-invalid-s2'); $('#tasnifatErr').show(); isValid = false; }
+        if(!a.val()) { a.addClass('is-invalid-s2'); $('#adErr').show(); isValid = false; }
+        if(!m.val() || parseFloat(m.val()) <= 0) { 
+            m.addClass('is-invalid'); 
+            $('#miqdarErr').text(parseFloat(m.val()) <= 0 && m.val() !== "" ? "Miqdar 0-dan böyük olmalıdır" : "Bu xana boş qala bilməz").show(); 
+            isValid = false; 
+        }
+
+        if(!isValid) return;
+
+        let isDup = false;
+        $('#tableBody tr').each(function() {
+            if ($(this).attr('data-tid') == t.val() && $(this).attr('data-aname') == a.val() && a.val() !== "Digər") isDup = true;
+        });
+
+        if (isDup) { $('#duplicateAlert').fadeIn().delay(3000).fadeOut(); return; }
+        
+        $('#emptyAlert').hide();
+
+        $('#tableBody').append(`<tr data-tid="${t.val()}" data-aname="${a.val()}">
+            <td>${t.find('option:selected').text()}</td><td>${a.val()}</td><td>${$('#vahid').val()}</td>
+            <td>${parseFloat(m.val()).toFixed(2)}</td><td>${$('#haqq').val()}</td>
+            <td class="text-center">
+                <span onclick="editRow(this)" style="cursor:pointer; margin-right:10px;">✏️</span>
+                <span onclick="$(this).closest('tr').remove(); updateTotal();" style="cursor:pointer">🗑</span>
+            </td>
+        </tr>`);
+        updateTotal(); reset();
+    }
+
+    function editRow(btn) {
+        const r = $(btn).closest('tr');
+        internal = true;
+        $('.is-invalid, .is-invalid-s2').removeClass('is-invalid is-invalid-s2');
+        $('.invalid-feedback').hide();
+        $('#tasnifat').val(r.attr('data-tid')).trigger('change');
+        setTimeout(() => {
+            $('#ad').val(r.attr('data-aname')).trigger('change.select2');
+            $('#miqdar').val(r.find('td:eq(3)').text());
+            $('#vahid').val(r.find('td:eq(2)').text());
+            calculate();
+            internal = false;
+        }, 120);
+        r.remove();
+        updateTotal();
+    }
+
+    function updateTotal() {
+        let s = 0; $('#tableBody tr').each(function() { s += parseFloat($(this).find('td:eq(4)').text()); });
+        $('#footerTotal').text(`Cəmi: ${s.toFixed(2)} AZN`);
+    }
+
+    function reset() {
+        internal = true; $('#tasnifat').val("").trigger('change'); loadAds();
+        $('#miqdar').val(""); $('#vahid').val(""); $('#haqq').val("0.00");
+        $('.is-invalid, .is-invalid-s2').removeClass('is-invalid is-invalid-s2');
+        $('.invalid-feedback').hide();
+        internal = false;
+    }
+
+    function confirmData() {
+        if ($('#tableBody tr').length === 0) {
+            $('#emptyAlert').fadeIn().delay(4000).fadeOut();
+        } else {
+            Swal.fire({ icon: 'success', title: 'Uğurlu!', text: 'Məlumatlar yadda saxlanıldı.', confirmButtonColor: '#3b71ca' });
+        }
+    }
+</script>
+</body>
+</html>
