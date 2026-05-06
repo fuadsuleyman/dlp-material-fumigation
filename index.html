@@ -19,6 +19,8 @@
         .table-container { margin-top: 10px; border-radius: 8px; border: 1px solid #eee; overflow: hidden; }
         .footer-total { background-color: #f0f5ff; padding: 15px 40px; text-align: right; font-weight: 700; border-top: 2px solid #3b71ca; }
         .btn-confirm { background-color: #3b71ca; color: white; padding: 12px 40px; border-radius: 8px; border: none; font-weight: 600; transition: 0.3s; margin-top: 20px; float: right; cursor: pointer; }
+        #paletOlcuRow input:focus { border-color: #3b71ca; box-shadow: 0 0 0 0.15rem rgba(59,113,202,0.2); }
+        .olcu-badge { font-size: 0.75rem; color: #3b71ca; background: #e8efff; padding: 2px 7px; border-radius: 10px; margin-left: 6px; font-weight: 600; }
     </style>
 </head>
 <body>
@@ -49,6 +51,8 @@
                     <option value="11" data-vahid="ton" data-price="0.60">11. Torpaq nümunələri</option>
                     <option value="12" data-vahid="m3" data-price="1.10">12. Meşə materialları</option>
                     <option value="13" data-vahid="m3" data-price="1.30">13. Taxta-şalban məmulatları</option>
+                    <option value="14" data-vahid="ədəd" data-price="1.40">14. Taxta altlıqların və qutuların zərərsizləşdirilməsi və markalanması</option>
+                    <option value="15" data-vahid="ədəd" data-price="1.50">15. Termik üsulla zərərsizləşdirilmə</option>
                 </select>
                 <div id="tasnifatErr" class="invalid-feedback">Bu xana boş qala bilməz</div>
             </div>
@@ -74,6 +78,34 @@
         </div>
     </div>
 
+    <!-- Taxta palet ölçüləri -->
+    <div id="paletOlcuRow" style="display:none;" class="mb-2">
+        <div class="d-flex align-items-flex-start gap-2 flex-wrap">
+            <span style="font-size:0.8rem; color:#3b71ca; font-weight:700; white-space:nowrap; padding-top:6px;">📐 Ölçülər:</span>
+            <div class="btn-group btn-group-sm" role="group" id="paletVahidGroup" style="height:31px;">
+                <input type="radio" class="btn-check" name="paletVahid" id="vahidSm" value="sm" checked>
+                <label class="btn btn-outline-primary" for="vahidSm">sm</label>
+                <input type="radio" class="btn-check" name="paletVahid" id="vahidM" value="m">
+                <label class="btn btn-outline-primary" for="vahidM">m</label>
+            </div>
+            <div class="d-flex flex-column">
+                <input type="number" id="paletEn" class="form-control form-control-sm" placeholder="En" step="0.01" min="0" style="width:90px;">
+                <div id="paletEnErr" class="text-danger" style="display:none; font-size:0.7rem; font-weight:500; white-space:nowrap; margin-top:2px;">En daxil edin</div>
+            </div>
+            <span style="color:#888; font-weight:700; padding-top:5px;">×</span>
+            <div class="d-flex flex-column">
+                <input type="number" id="paletUz" class="form-control form-control-sm" placeholder="Uzunluq" step="0.01" min="0" style="width:100px;">
+                <div id="paletUzErr" class="text-danger" style="display:none; font-size:0.7rem; font-weight:500; white-space:nowrap; margin-top:2px;">Uzunluq daxil edin</div>
+            </div>
+            <span style="color:#888; font-weight:700; padding-top:5px;">×</span>
+            <div class="d-flex flex-column">
+                <input type="number" id="paletHun" class="form-control form-control-sm" placeholder="Hündürlük" step="0.01" min="0" style="width:110px;">
+                <div id="paletHunErr" class="text-danger" style="display:none; font-size:0.7rem; font-weight:500; white-space:nowrap; margin-top:2px;">Hündürlük daxil edin</div>
+            </div>
+            <span id="paletVahidLabel" style="font-size:0.8rem; color:#555; font-weight:600; padding-top:5px;">sm</span>
+        </div>
+    </div>
+
     <div class="table-container">
         <table class="table mb-0 align-middle">
             <thead>
@@ -87,7 +119,111 @@
         <div class="footer-total" id="footerTotal">Cəmi: 0.00 AZN</div>
     </div>
 
-    <button type="button" class="btn-confirm" onclick="confirmData()">Təsdiqlə</button>
+
+    <hr class="my-4">
+
+    <div class="row g-3">
+        <div class="col-md-8">
+            <div class="field-wrapper">
+                <label class="form-label">Qablaşdırma növü</label>
+                <select id="qablasdirmaNovu" class="form-select select2-search2">
+                    <option value="">Seçim edin</option>
+                    <option>Çuval</option><option>Karton qutu</option><option>Taxta qəfəs</option>
+                    <option>Plastik qab</option><option>Palet</option><option>Bağlama</option>
+                    <option>Konteyner</option><option>Digər</option>
+                </select>
+                <div id="qablasdirmaNoviErr" class="invalid-feedback">Bu xana boş qala bilməz</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="field-wrapper">
+                <label class="form-label">Qablaşdırma sayı</label>
+                <input type="number" id="qablasdirmaSayi" class="form-control" placeholder="Daxil edin" min="1" step="1">
+                <div id="qablasdirmaSayiErr" class="invalid-feedback">Bu xana boş qala bilməz</div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="field-wrapper">
+                <label class="form-label">Materialın mənbəyi</label>
+                <select id="materialMenbey" class="form-select select2-search2">
+                    <option value="">Seçim edin</option>
+                    <option>Abşeron</option><option>Ağcabədi</option><option>Ağdam</option><option>Ağdaş</option>
+                    <option>Ağstafa</option><option>Ağsu</option><option>Astara</option><option>Balakən</option>
+                    <option>Bərdə</option><option>Beyləqan</option><option>Biləsuvar</option><option>Cəbrayıl</option>
+                    <option>Cəlilabad</option><option>Daşkəsən</option><option>Füzuli</option><option>Gədəbəy</option>
+                    <option>Goranboy</option><option>Göyçay</option><option>Göygöl</option><option>Hacıqabul</option>
+                    <option>İmişli</option><option>İsmayıllı</option><option>Kəlbəcər</option><option>Kürdəmir</option>
+                    <option>Laçın</option><option>Lerik</option><option>Masallı</option><option>Neftçala</option>
+                    <option>Oğuz</option><option>Qax</option><option>Qazax</option><option>Qəbələ</option>
+                    <option>Qobustan</option><option>Quba</option><option>Qubadlı</option><option>Qusar</option>
+                    <option>Saatlı</option><option>Sabirabad</option><option>Salyan</option><option>Şamaxı</option>
+                    <option>Şəmkir</option><option>Samux</option><option>Siyəzən</option><option>Şuşa</option>
+                    <option>Tərtər</option><option>Tovuz</option><option>Ucar</option><option>Xaçmaz</option>
+                    <option>Xankəndi</option><option>Xızı</option><option>Xocavənd</option><option>Yardımlı</option>
+                    <option>Zaqatala</option><option>Zəngilan</option><option>Zərdab</option>
+                    <option>Bakı</option><option>Gəncə</option><option>Sumqayıt</option><option>Lənkəran</option>
+                    <option>Mingəçevir</option><option>Naxçıvan</option><option>Naftalan</option><option>Şirvan</option>
+                </select>
+                <div id="materialMenbeyErr" class="invalid-feedback">Bu xana boş qala bilməz</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="field-wrapper">
+                <label class="form-label">Fumiqasiya tədbiri aparılan yer</label>
+                <input type="text" id="fumiqasiyaYer" class="form-control" placeholder="Daxil edin">
+                <div id="fumiqasiyaYerErr" class="invalid-feedback">Bu xana boş qala bilməz</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="field-wrapper">
+                <label class="form-label d-flex align-items-center gap-2">
+                    Yükü qəbul edən ölkə
+                    <span class="d-flex align-items-center gap-1 ms-auto" style="font-weight:400;">
+                        <input type="checkbox" id="coxOlkeCheck" style="width:15px;height:15px;cursor:pointer;">
+                        <label for="coxOlkeCheck" style="font-size:0.78rem;color:#3b71ca;cursor:pointer;margin:0;font-weight:600;">Birdən çoxdur</label>
+                    </span>
+                </label>
+                <select id="qebulOlke" class="form-select select2-search2">
+                    <option value="">Seçim edin</option>
+                    <option>Rusiya</option><option>Türkiyə</option><option>Gürcüstan</option><option>İran</option>
+                    <option>Ukrayna</option><option>Qazaxıstan</option><option>Özbəkistan</option><option>Türkmənistan</option>
+                    <option>Belarus</option><option>Polşa</option><option>Almaniya</option><option>Fransa</option>
+                    <option>İtaliya</option><option>İspaniya</option><option>Niderland</option><option>Belçika</option>
+                    <option>Çexiya</option><option>Slovakiya</option><option>Macarıstan</option><option>Rumıniya</option>
+                    <option>Bolqarıstan</option><option>Serbiya</option><option>Xorvatiya</option><option>Avstriya</option>
+                    <option>İsveçrə</option><option>İsveç</option><option>Norveç</option><option>Finlandiya</option>
+                    <option>Danimarka</option><option>Portuqaliya</option><option>Yunanıstan</option><option>Çin</option>
+                    <option>Hindistan</option><option>Pakistan</option><option>Əfqanıstan</option><option>Səudiyyə Ərəbistanı</option>
+                    <option>BƏƏ</option><option>İsrail</option><option>Irak</option><option>Suriya</option>
+                    <option>Misir</option><option>Liviya</option><option>Əlcəzair</option><option>Tunis</option>
+                    <option>Amerika</option><option>Kanada</option><option>Braziliya</option><option>Argentina</option>
+                    <option>Meksika</option><option>Yaponiya</option><option>Cənubi Koreya</option><option>Digər</option>
+                </select>
+                <div id="qebulOlkeErr" class="invalid-feedback">Ən azı bir ölkə seçin</div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="field-wrapper">
+                <label class="form-label">Əlaqə nömrəsi</label>
+                <div class="input-group">
+                    <span class="input-group-text" style="font-weight:600; background:#f5f7ff; border-color:#dee2e6;">+994</span>
+                    <input type="tel" id="elaqeNomre" class="form-control" placeholder="Daxil edin" maxlength="9">
+                </div>
+                <div id="elaqeNomreErr" class="invalid-feedback" style="position:static; margin-top:3px;">Düzgün nömrə daxil edin</div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="field-wrapper">
+                <label class="form-label">Elektron poçt ünvanı</label>
+                <input type="email" id="email" class="form-control" placeholder="Daxil edin">
+                <div id="emailErr" class="invalid-feedback">Düzgün e-poçt ünvanı daxil edin</div>
+            </div>
+        </div>
+    </div>
+
+    <button type="button" class="btn-confirm" onclick="confirmData()">Təsdiqlə və göndər</button>
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -108,7 +244,9 @@
         "10": ["Laboratoriya nümunəsi", "Analiz materialı"],
         "11": ["Torpaq", "Gübrəli torpaq"],
         "12": ["Odun", "Şam", "Küknar", "Palıd"],
-        "13": ["Taxta", "Şalban", "Laminat", "DSP"]
+        "13": ["Taxta", "Şalban", "Laminat", "DSP"],
+        "14": ["Taxta palet"],
+        "15": ["Taxta palet"]
     };
     
     let internal = false;
@@ -120,7 +258,62 @@
 
     $(document).ready(function() {
         $('.select2-search').select2({ theme: 'bootstrap-5', placeholder: 'Seçim edin' });
+        $('.select2-search2').select2({ theme: 'bootstrap-5', placeholder: 'Seçim edin' });
         loadAds();
+
+        $('#coxOlkeCheck').on('change', function() {
+            const isMulti = $(this).is(':checked');
+            const $sel = $('#qebulOlke');
+            $sel.select2('destroy');
+            if (isMulti) {
+                $sel.attr('multiple', true);
+                $sel.find('option[value=""]').remove();
+                $sel.select2({ theme: 'bootstrap-5', placeholder: 'Ölkələri seçin', closeOnSelect: false, allowClear: true });
+            } else {
+                $sel.removeAttr('multiple');
+                $sel.val(null);
+                if (!$sel.find('option[value=""]').length) $sel.prepend('<option value="">Seçim edin</option>');
+                $sel.select2({ theme: 'bootstrap-5', placeholder: 'Seçim edin' });
+            }
+            $('#qebulOlkeErr').hide();
+        });
+
+        // Real-time validation clearing for bottom form fields
+        $('#qablasdirmaSayi').on('input', function() {
+            if (parseInt($(this).val()) > 0) { $(this).removeClass('is-invalid'); $('#qablasdirmaSayiErr').hide(); }
+        });
+        $('#fumiqasiyaYer').on('input', function() {
+            if ($(this).val().trim()) { $(this).removeClass('is-invalid'); $('#fumiqasiyaYerErr').hide(); }
+        });
+        $('#elaqeNomre').on('input', function() {
+            if (/^\d{9}$/.test($(this).val().trim())) { $(this).removeClass('is-invalid'); $('#elaqeNomreErr').hide(); }
+        });
+        $('#email').on('input', function() {
+            if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test($(this).val().trim())) { $(this).removeClass('is-invalid'); $('#emailErr').hide(); }
+        });
+        $('#qablasdirmaNovu').on('change', function() {
+            if ($(this).val()) { $(this).next('.select2-container').find('.select2-selection').css('border-color',''); $('#qablasdirmaNoviErr').hide(); }
+        });
+        $('#materialMenbey').on('change', function() {
+            if ($(this).val()) { $(this).next('.select2-container').find('.select2-selection').css('border-color',''); $('#materialMenbeyErr').hide(); }
+        });
+        $('#qebulOlke').on('change', function() {
+            const v = $(this).val();
+            const ok = v && (Array.isArray(v) ? v.length > 0 : v !== '');
+            if (ok) { $(this).next('.select2-container').find('.select2-selection').css('border-color',''); $('#qebulOlkeErr').hide(); }
+        });
+
+        $('#paletEn, #paletUz, #paletHun').on('input', function() {
+            if (parseFloat($(this).val()) > 0) {
+                $(this).removeClass('is-invalid');
+                $('#' + $(this).attr('id') + 'Err').hide();
+            }
+        });
+
+        $('input[name="paletVahid"]').on('change', function() {
+            $('#paletVahidLabel').text($(this).val());
+            $('#paletEn, #paletUz, #paletHun').val('');
+        });
 
         $('#miqdar').on('input', function() {
             if (parseFloat($(this).val()) > 0) clearValidation('#miqdar');
@@ -137,7 +330,7 @@
             $('#vahid').val($(this).find(':selected').data('vahid') || "");
             
             let opt = '<option value="">Seçim edin</option>';
-            if(t && materialMap[t]) materialMap[t].forEach(i => opt += `<option value="${i}">${i}</option>`);
+            if(t && materialMap[t]) materialMap[t].forEach(i => opt += `<option value="${i}" data-cat="${t}">${i}</option>`);
             opt += '<option value="Digər">Digər</option>';
             
             $('#ad').html(opt);
@@ -156,26 +349,68 @@
             if (internal) return;
             const val = e.params.data.id;
             if (val && val !== "Digər") {
-                for (let tid in materialMap) {
-                    if (materialMap[tid].includes(val)) {
-                        internal = true;
-                        $('#tasnifat').val(tid).trigger('change');
-                        clearValidation('#tasnifat');
-                        $('#vahid').val($('#tasnifat option:selected').data('vahid'));
-                        internal = false;
-                        break;
-                    }
+                const parts = val.split('||');
+                const matName = parts[0];
+                const forceCat = parts[1] || null;
+                const tid = forceCat || (() => { for (let k in materialMap) { if (materialMap[k].includes(matName)) return k; } })();
+                if (tid) {
+                    internal = true;
+                    $('#tasnifat').val(tid).trigger('change');
+                    clearValidation('#tasnifat');
+                    $('#vahid').val($('#tasnifat option[value="'+tid+'"]').data('vahid'));
+                    internal = false;
                 }
             }
+            togglePaletFields(val);
             calculate();
         });
     });
 
+    function togglePaletFields(val) {
+        const cleanVal = val ? val.split('||')[0] : '';
+        if (cleanVal === "Taxta palet") {
+            $('#paletOlcuRow').slideDown(200);
+        } else {
+            $('#paletOlcuRow').slideUp(200);
+            $('#paletEn, #paletUz, #paletHun').val('').removeClass('is-invalid');
+            $('#paletEnErr, #paletUzErr, #paletHunErr').hide().css('display','');
+        }
+    }
+
+    function isPalet() { const v = $('#ad').val(); return v && v.split('||')[0] === "Taxta palet"; }
+
     function loadAds() {
+        // Track which material names appear in multiple categories
+        const countMap = {};
+        for(let k in materialMap) materialMap[k].forEach(i => { countMap[i] = (countMap[i]||0)+1; });
+
         let opt = '<option value="">Seçim edin</option>';
-        for(let k in materialMap) materialMap[k].forEach(i => opt += `<option value="${i}">${i}</option>`);
+        for(let k in materialMap) {
+            materialMap[k].forEach(i => {
+                if (countMap[i] > 1) {
+                    // Same name in multiple cats: use internal value with suffix, display with category hint
+                    const catText = $('#tasnifat option[value="'+k+'"]').text() || k;
+                    opt += `<option value="${i}||${k}" data-cat="${k}" title="${catText}">${i}</option>`;
+                } else {
+                    opt += `<option value="${i}" data-cat="${k}">${i}</option>`;
+                }
+            });
+        }
         opt += '<option value="Digər">Digər</option>';
         $('#ad').html(opt);
+        if ($('#ad').data('select2')) $('#ad').select2('destroy');
+        $('#ad').select2({
+            theme: 'bootstrap-5',
+            placeholder: 'Seçim edin',
+            templateResult: function(opt) {
+                if (!opt.id) return opt.text;
+                const cat = $(opt.element).attr('title');
+                if (cat) {
+                    return $('<span>' + opt.text + ' <small style="color:#6c757d;font-size:0.75rem;">— ' + cat + '</small></span>');
+                }
+                return opt.text;
+            }
+        });
     }
 
     function calculate() {
@@ -202,19 +437,39 @@
             isValid = false; 
         }
 
+        let paletEn = '', paletUz = '', paletHun = '';
+        if (isPalet()) {
+            paletEn  = $('#paletEn').val();
+            paletUz  = $('#paletUz').val();
+            paletHun = $('#paletHun').val();
+            if (!paletEn || parseFloat(paletEn) <= 0)  { $('#paletEn').addClass('is-invalid');  $('#paletEnErr').css('display','block');  isValid = false; }
+            else { $('#paletEn').removeClass('is-invalid'); $('#paletEnErr').hide(); }
+            if (!paletUz || parseFloat(paletUz) <= 0)  { $('#paletUz').addClass('is-invalid');  $('#paletUzErr').css('display','block');  isValid = false; }
+            else { $('#paletUz').removeClass('is-invalid'); $('#paletUzErr').hide(); }
+            if (!paletHun || parseFloat(paletHun) <= 0){ $('#paletHun').addClass('is-invalid'); $('#paletHunErr').css('display','block'); isValid = false; }
+            else { $('#paletHun').removeClass('is-invalid'); $('#paletHunErr').hide(); }
+        }
+
         if(!isValid) return;
+
+        const paletVahid = $('input[name="paletVahid"]:checked').val();
+
+        const cleanAdVal = a.val() ? a.val().split('||')[0] : '';
+        const adDisplay = isPalet()
+            ? `${cleanAdVal} <span class="olcu-badge">${parseFloat(paletEn)}×${parseFloat(paletUz)}×${parseFloat(paletHun)} ${paletVahid}</span>`
+            : cleanAdVal;
 
         let isDup = false;
         $('#tableBody tr').each(function() {
-            if ($(this).attr('data-tid') == t.val() && $(this).attr('data-aname') == a.val() && a.val() !== "Digər") isDup = true;
+            if ($(this).attr('data-tid') == t.val() && $(this).attr('data-aname') == cleanAdVal && cleanAdVal !== "Digər" && !isPalet()) isDup = true;
         });
 
         if (isDup) { $('#duplicateAlert').fadeIn().delay(3000).fadeOut(); return; }
         
         $('#emptyAlert').hide();
 
-        $('#tableBody').append(`<tr data-tid="${t.val()}" data-aname="${a.val()}">
-            <td>${t.find('option:selected').text()}</td><td>${a.val()}</td><td>${$('#vahid').val()}</td>
+        $('#tableBody').append(`<tr data-tid="${t.val()}" data-aname="${cleanAdVal}" data-en="${paletEn}" data-uz="${paletUz}" data-hun="${paletHun}" data-vahid="${isPalet() ? paletVahid : ''}">
+            <td>${t.find('option:selected').text()}</td><td>${adDisplay}</td><td>${$('#vahid').val()}</td>
             <td>${parseFloat(m.val()).toFixed(2)}</td><td>${$('#haqq').val()}</td>
             <td class="text-center">
                 <span onclick="editRow(this)" style="cursor:pointer; margin-right:10px;">✏️</span>
@@ -234,6 +489,15 @@
             $('#ad').val(r.attr('data-aname')).trigger('change.select2');
             $('#miqdar').val(r.find('td:eq(3)').text());
             $('#vahid').val(r.find('td:eq(2)').text());
+            if (r.attr('data-aname') === 'Taxta palet') {
+                togglePaletFields('Taxta palet');
+                const v = r.attr('data-vahid') || 'sm';
+                $(`input[name="paletVahid"][value="${v}"]`).prop('checked', true);
+                $('#paletVahidLabel').text(v);
+                $('#paletEn').val(r.attr('data-en'));
+                $('#paletUz').val(r.attr('data-uz'));
+                $('#paletHun').val(r.attr('data-hun'));
+            }
             calculate();
             internal = false;
         }, 120);
@@ -249,6 +513,9 @@
     function reset() {
         internal = true; $('#tasnifat').val("").trigger('change'); loadAds();
         $('#miqdar').val(""); $('#vahid').val(""); $('#haqq').val("0.00");
+        togglePaletFields('');
+        $('input[name="paletVahid"][value="sm"]').prop('checked', true);
+        $('#paletVahidLabel').text('sm');
         $('.is-invalid, .is-invalid-s2').removeClass('is-invalid is-invalid-s2');
         $('.invalid-feedback').hide();
         internal = false;
@@ -257,9 +524,49 @@
     function confirmData() {
         if ($('#tableBody tr').length === 0) {
             $('#emptyAlert').fadeIn().delay(4000).fadeOut();
-        } else {
-            Swal.fire({ icon: 'success', title: 'Uğurlu!', text: 'Məlumatlar yadda saxlanıldı.', confirmButtonColor: '#3b71ca' });
+            return;
         }
+
+        let isValid = true;
+
+        if (!$('#qablasdirmaNovu').val()) {
+            $('#qablasdirmaNovu').next('.select2-container').find('.select2-selection').css('border-color','#dc3545');
+            $('#qablasdirmaNoviErr').show(); isValid = false;
+        } else { $('#qablasdirmaNoviErr').hide(); $('#qablasdirmaNovu').next('.select2-container').find('.select2-selection').css('border-color',''); }
+
+        if (!$('#qablasdirmaSayi').val() || parseInt($('#qablasdirmaSayi').val()) <= 0) {
+            $('#qablasdirmaSayi').addClass('is-invalid'); $('#qablasdirmaSayiErr').show(); isValid = false;
+        } else { $('#qablasdirmaSayi').removeClass('is-invalid'); $('#qablasdirmaSayiErr').hide(); }
+
+        if (!$('#materialMenbey').val()) {
+            $('#materialMenbey').next('.select2-container').find('.select2-selection').css('border-color','#dc3545');
+            $('#materialMenbeyErr').show(); isValid = false;
+        } else { $('#materialMenbeyErr').hide(); $('#materialMenbey').next('.select2-container').find('.select2-selection').css('border-color',''); }
+
+        if (!$('#fumiqasiyaYer').val().trim()) {
+            $('#fumiqasiyaYer').addClass('is-invalid'); $('#fumiqasiyaYerErr').show(); isValid = false;
+        } else { $('#fumiqasiyaYer').removeClass('is-invalid'); $('#fumiqasiyaYerErr').hide(); }
+
+        const olkeVal = $('#qebulOlke').val();
+        const olkeEmpty = !olkeVal || (Array.isArray(olkeVal) ? olkeVal.length === 0 : olkeVal === '');
+        if (olkeEmpty) {
+            $('#qebulOlke').next('.select2-container').find('.select2-selection').css('border-color','#dc3545');
+            $('#qebulOlkeErr').show(); isValid = false;
+        } else { $('#qebulOlkeErr').hide(); $('#qebulOlke').next('.select2-container').find('.select2-selection').css('border-color',''); }
+
+        const tel = $('#elaqeNomre').val().trim();
+        if (!tel || !/^\d{9}$/.test(tel)) {
+            $('#elaqeNomre').addClass('is-invalid'); $('#elaqeNomreErr').show(); isValid = false;
+        } else { $('#elaqeNomre').removeClass('is-invalid'); $('#elaqeNomreErr').hide(); }
+
+        const mail = $('#email').val().trim();
+        if (!mail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(mail)) {
+            $('#email').addClass('is-invalid'); $('#emailErr').show(); isValid = false;
+        } else { $('#email').removeClass('is-invalid'); $('#emailErr').hide(); }
+
+        if (!isValid) return;
+
+        Swal.fire({ icon: 'success', title: 'Uğurlu!', text: 'Məlumatlar yadda saxlanıldı.', confirmButtonColor: '#3b71ca' });
     }
 </script>
 </body>
